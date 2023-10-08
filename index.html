@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"
+    />
+
+    <title>Terminal</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Open Sans"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://telegram.org/js/telegram-web-app.js?1"></script>
+    <script src="dist/bundle.js" type="module"></script>
+  </head>
+  <body>
+    <div class="terminal" id="terminal">
+      <div class="historyScroll" id="history-scroll">
+        <div class="history" id="history"></div>
+      </div>
+      <div class="inputBg" id="inputBg">
+        <input
+          type="text"
+          class="terminalInput"
+          id="terminal-input"
+          placeholder="Type a command"
+          autocapitalize="off"
+          enterkeyhint="send"
+        />
+        <button class="actionButton" id="interruptButton">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            version="1.1"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            x="0"
+            y="0"
+            viewBox="0 0 32 32"
+            style="enable-background: new 0 0 512 512"
+            xml:space="preserve"
+            class=""
+          >
+            <g>
+              <path
+                d="M16 2C8.3 2 2 8.3 2 16s6.3 14 14 14 14-6.3 14-14S23.7 2 16 2zm5 17c0 1.1-.9 2-2 2h-6c-1.1 0-2-.9-2-2v-6c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2z"
+              ></path>
+            </g>
+          </svg>
+        </button>
+        <button class="terminalButton" id="terminalButton"></button>
+      </div>
+    </div>
+    <div class="not-supported">This webapp works only in Telegram.</div>
+  </body>
+</html>

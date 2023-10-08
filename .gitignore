@@ -1,0 +1,7 @@
+/node_modules
+/dist
+/bot/node_modules
+/server/tmp
+/.env
+/bot/.env
+/server/tmp

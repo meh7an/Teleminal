@@ -1,0 +1,236 @@
+@font-face {
+  font-family: "odudo";
+  src: url("fonts/Mono.eot");
+  src: url("fonts/Mono.eot?#iefix") format("embedded-opentype"),
+    url("fonts/Mono.woff2") format("woff2"),
+    url("fonts/Mono.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  color: #fff;
+  margin: 0;
+  font-size: 16px;
+  overflow: hidden;
+  height: var(--tg-viewport-height);
+}
+
+.tdesktop {
+  font-family: "Open Sans";
+}
+
+.terminal {
+  height: var(--tg-viewport-height);
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  position: fixed;
+  left: 0;
+  transition: 0.3s;
+}
+
+.historyScroll {
+  height: 100%;
+  overflow: hidden scroll;
+  margin: 0 0.8rem;
+  background-color: var(--tg-theme-secondary-bg-color);
+  border-radius: 10px;
+}
+
+.ios .historyScroll {
+  border-radius: 25px;
+}
+
+.history {
+  color: #fff;
+  font-family: odudo, monospace;
+  display: flex;
+  padding: 0.5rem 0.2rem;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  min-height: calc(100% - 1rem);
+}
+
+.history div {
+  width: 100%;
+  font-size: 0.8rem;
+  word-break: break-all;
+  margin: 0.2rem 0;
+  filter: invert(1);
+}
+
+.dark .history div {
+  width: 100%;
+  font-size: 0.8rem;
+  word-break: break-all;
+  margin: 0.2rem 0;
+  filter: invert(0);
+}
+
+.inputBg {
+  width: 100%;
+  height: 2.5rem;
+  background-color: var(--tg-theme-bg-color);
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.terminalInput {
+  width: 100%;
+  height: 100%;
+  outline: 0;
+  margin: 0;
+  border: 0;
+  font-family: odudo, monospace;
+  background-color: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
+  font-size: 0.9rem;
+  padding: 0 1rem;
+  transition: 0.1s;
+}
+
+.terminalInput::placeholder {
+  color: var(--tg-theme-text-color);
+  opacity: 0.5;
+}
+
+.terminalButton,
+.actionButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  background-size: 2rem;
+  background-repeat: no-repeat;
+  background-position: center;
+  color: var(--tg-theme-button-color);
+  border: 0;
+  outline: 0;
+  background: none;
+  opacity: 0;
+  cursor: pointer;
+  transition: 0.1s;
+  display: flex;
+  align-items: center;
+}
+
+.actionButton {
+  opacity: 1;
+}
+
+.terminalButton path,
+.actionButton path {
+  fill: var(--tg-theme-button-color);
+}
+
+.actionButton svg {
+  width: 1.7rem
+}
+
+.android .terminal {
+  background-color: var(--tg-theme-bg-color);
+}
+
+.android .inputBg {
+  height: 3.5rem;
+}
+
+.android .terminalInput {
+  font-size: 1rem;
+}
+
+.macos .terminalButton {
+  width: 0;
+  height: 0;
+  transition: 0.3s cubic-bezier(.47, 1.64, .41, .8);
+}
+
+.tdesktop .terminalButton {
+  width: 0;
+}
+
+.tdesktop .terminalButton svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: 0.2s;
+}
+
+.android .terminalButton svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: 0.2s;
+}
+
+.tdesktop .terminalButton {
+  margin: 0 0.3rem;
+  padding: 0;
+}
+
+.tdesktop .inputBg {
+  height: 3rem;
+  border: 1px solid var(--tg-theme-bg-color);
+  border-radius: 10px;
+  border-width: 0 0 1px 0px;
+  overflow: hidden;
+}
+
+.ios .inputBg {
+  height: 3.5rem;
+}
+
+.ios .terminalButton svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ios .terminalInput {
+  margin: 0.5rem 0.8rem 0.5rem;
+  height: 2.2rem;
+  padding: 0 1rem;
+  width: 100%;
+  border-width: 1px 0;
+  background-color: var(--tg-theme-secondary-bg-color);
+  color: var(--tg-theme-text-color);
+  border-radius: 100px;
+  transition: 0.2s;
+}
+
+.ios .terminalButton {
+  background-color: var(--tg-theme-button-color);
+  height: 2.2rem;
+  width: 0;
+  padding: 0;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.ios .terminalButton path {
+  fill: #fff;
+}
+
+
+
+.not-supported {
+  display: none;
+}
+
+.unknown .not-supported {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}
