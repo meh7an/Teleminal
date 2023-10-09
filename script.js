@@ -24,9 +24,28 @@ const addMessage = (message) => {
     historyScroll.scrollTop = historyScroll.scrollHeight
 }
 const webApp = window.Telegram.WebApp
-//get the url arguments
+
 const data = webApp.initDataUnsafe.start_param
-// webApp.MainButton.show()
+let sendingData
+if (data) {
+    const { address, port, username, auth } = JSON.parse(atob(data))
+    sendingData = {
+        address,
+        port,
+        username,
+        auth
+    }
+    const keyValuePairs = [
+        { key: "address", value: sendingData.address },
+        { key: "port", value: sendingData.port },
+        { key: "username", value: sendingData.username },
+        { key: "auth", value: JSON.stringify(sendingData.auth) },
+    ];
+    for (const { key, value } of keyValuePairs) {
+        webApp.CloudStorage.setItem(key, value);
+    }
+}
+
 const platform = webApp.platform
 const main = function (data) {
     if (platform === "unknown") {
@@ -36,7 +55,6 @@ const main = function (data) {
     let sudo = false
     let sudoCommand = ""
     const initParams = window.Telegram.WebView.initParams
-    // data is base64. turn it into a string
     const themeParams = JSON.parse(initParams.tgWebAppThemeParams)
     console.log(themeParams);
     const terminalInput = document.getElementById('terminal-input')
@@ -90,8 +108,7 @@ const main = function (data) {
             terminalButton.firstChild.style.width = "1.5rem"
         }
     }
-    // webApp.MainButton.onClick(() => webApp.sendData("dodododo"))
-    // if input is not empty, set button opacity to 1, otherwise set it to 0.
+
     terminalInput.addEventListener('input', (event) => {
         if (terminalInput.value) {
             showButton()
@@ -247,7 +264,7 @@ const main = function (data) {
         }
         else if (webApp.MainButton.text === "Reconnect") {
             webApp.MainButton.hide()
-            main()
+            main(data)
         }
     })
     Telegram.WebApp.onEvent('themeChanged', (e) => {
@@ -349,7 +366,10 @@ const addServer = () => {
             webApp.CloudStorage.setItem(key, value);
         }
         webApp.showAlert("Server added successfully.")
-
+        document.getElementById('addNewServer').style.display = "none"
+        document.getElementById('terminal').style.display = "flex"
+        delete sendingData.initData
+        main(JSON.stringify(sendingData))
 
     }
     // check if all necessary fields are filled
@@ -380,9 +400,9 @@ const addServer = () => {
     })
 }
 if (platform !== "unknown") {
-    if (data) {
+    if (sendingData) {
         document.getElementById('terminal').style.display = "flex"
-        main(data)
+        main(JSON.stringify(sendingData))
     }
     else {
         webApp.CloudStorage.getItems(["address", "port", "auth", "username"], (err, data) => {

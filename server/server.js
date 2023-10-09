@@ -136,7 +136,8 @@ const main = () => {
                 sendConnection(ctx, ctx.session.serverAddress, ctx.session.serverPort, ctx.session.serverUsername, {
                     type: "both",
                     password: null,
-                    privateKey: ctx.session.serverPrivateKey
+                    privateKey: null,
+                    privateKeyDir: ctx.session.serverPrivateKey
                 });
             }
             ctx.session.state = 8;
@@ -160,14 +161,13 @@ const main = () => {
                 const filePath = await file.download()
                 if (isPEMFile(filePath)) {
                     ctx.session.serverPrivateKey = file.file_path;
-                    ctx.reply(JSON.stringify(file));
                     if (ctx.session.state === 6) {
                         ctx.session.state = 8;
                         sendConnection(ctx, ctx.session.serverAddress, ctx.session.serverPort, ctx.session.serverUsername, {
                             type: "privateKey",
-                            privateKey: ctx.session.serverPrivateKey
+                            password: null,
+                            privateKeyDir: ctx.session.serverPrivateKey
                         });
-                        return ctx.reply("Complete!");
                     }
                     else if (ctx.session.state === 7) {
                         ctx.session.state = 10;
@@ -228,11 +228,11 @@ const main = () => {
                 const userField = urlParams.get("user");
                 const userObject = JSON.parse(decodeURIComponent(userField));
                 const userId = userObject.id;
-                const dataKeyboard = new Keyboard().webApp(
-                    "Now you can connect to terminal directly.",
+                const dataKeyboard = new InlineKeyboard().webApp(
+                    "Connect to Terminal",
                     process.env.URL
                 );
-                await bot.api.sendMessage(userId, "Connect to Terminal", {
+                await bot.api.sendMessage(userId, `🖥 ${address}\n🔐 ${auth.type}`, {
                     reply_markup: dataKeyboard
                 });
                 return res.json({ status: 200, response: "Data Sent." });
@@ -245,10 +245,8 @@ const main = () => {
 
         wss.on("connection", async (ws, req) => {
             let ready = false
-            const urlData = req.url.replace("/api/", "");
-            // const { address, port, username, auth } = JSON.parse(atob(urlData))
             let address, port, username, auth
-            const auths = await new Promise((resolve, reject) => {
+            await new Promise((resolve, reject) => {
                 ws.once("message", (message) => {
                     const authData = JSON.parse(message.toString());
                     if (authData.auth) {
@@ -263,7 +261,6 @@ const main = () => {
             })
             let authData = {}
             const authType = auth.type
-            const token = process.env.TOKEN
 
             let keyPath
             if (authType === "password") {
@@ -276,25 +273,24 @@ const main = () => {
                 authData.privateKey = auth.privateKey
                 authData.password = auth.password
             }
+            if (authType !== "password" && !auth.privateKey && auth.privateKeyDir) {
+                console.log('dir');
+                const fileName = auth.privateKeyDir.split("/")[1]
+                if (!fs.existsSync(`${__dirname}/tmp`)) {
+                    fs.mkdirSync(`${__dirname}/tmp`);
+                }
+                keyPath = `${__dirname}/tmp/${fileName}`
+                const token = process.env.TOKEN
+                await new Promise((resolve, reject) => {
+                    https.get(`https://api.telegram.org/file/bot${token}/${auth.privateKeyDir}`, function (response) {
+                        response.on('data', function (data) {
+                            authData.privateKey = data.toString()
+                            resolve();
+                        });
+                    });
+                })
+            }
             console.log(authData);
-            // if (authType !== "password") {
-            //     const fileName = auth.privateKey.split("/")[1]
-            //     if (!fs.existsSync(`${__dirname}/tmp`)) {
-            //         fs.mkdirSync(`${__dirname}/tmp`);
-            //     }
-            //     keyPath = `${__dirname}/tmp/${fileName}`
-            //     const file = fs.createWriteStream(keyPath);
-            //     await new Promise((resolve, reject) => {
-            //         https.get(`https://api.telegram.org/file/bot${token}/${auth.privateKey}`, function (response) {
-            //             response.pipe(file);
-            //             file.on('finish', function () {
-            //                 file.close();
-            //                 resolve();
-            //             });
-            //         });
-            //     })
-            // }
-
             const connect = () => {
                 ssh
                     .connect({
@@ -371,7 +367,7 @@ const main = () => {
                         }
                     });
             }
-            if (authType === "password" && !auth.password) {
+            if (authType === "password" && !authData.password) {
                 const wsMessage = { stdout: "Please enter the password.", service: "password" }
                 ws.send(JSON.stringify(wsMessage));
                 ws.once("message", (message) => {
@@ -380,12 +376,12 @@ const main = () => {
                     connect();
                 });
             }
-            else if (authType === "privateKey" && !auth.privateKey) {
-                authData.privateKeyPath = keyPath
+            else if (authType === "privateKey" && !authData.privateKey) {
+                authData.privateKey = auth.privateKey
                 connect()
             }
-            else if (authType === "both" && !auth.privateKey && !auth.password) {
-                authData.privateKeyPath = keyPath
+            else if (authType === "both" && !authData.privateKey && !authData.password) {
+                authData.privateKey = auth.privateKey
                 const wsMessage = { stdout: "Please enter the password.", service: "password" }
                 ws.send(JSON.stringify(wsMessage));
                 ws.once("message", (message) => {
