@@ -14,6 +14,7 @@ body {
   font-size: 16px;
   overflow: hidden;
   height: var(--tg-viewport-height);
+  background-color: var(--tg-theme-bg-color);
 }
 
 .tdesktop {
@@ -24,13 +25,17 @@ body {
   height: var(--tg-viewport-height);
   overflow: hidden;
   width: 100%;
-  display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: flex-end;
   position: fixed;
   left: 0;
   transition: 0.3s;
+  display: none;
+}
+
+.addNewServer {
+  display: none;
 }
 
 .historyScroll {
@@ -233,4 +238,141 @@ body {
   display: flex !important;
   justify-content: center;
   align-items: center;
+}
+
+
+.addNewServer {
+  position: relative;
+  width: 60%;
+  display: none;
+  justify-content: center;
+  margin: auto;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 10px;
+  font-family: odudo;
+}
+
+.addNewServer div {
+  position: relative;
+  width: 100%;
+  margin: 1rem 0;
+  height: 3rem;
+  display: flex;
+  align-items: baseline;
+}
+
+.addNewServer input {
+  display: flex;
+  margin: auto;
+  width: 100%;
+  height: 2rem;
+  border-radius: 1rem;
+  padding: 0 1rem;
+  border: 0;
+  outline: 0;
+  background-color: var(--tg-theme-secondary-bg-color);
+  color: var(--tg-theme-text-color);
+}
+
+
+.addNewServer .label {
+  position: absolute;
+  pointer-events: none;
+  line-height: 0;
+  top: 1.5rem;
+  left: 0.5rem;
+  transition: 0.2s ease;
+  color: var(--tg-theme-text-color);
+  opacity: 0.5;
+}
+
+.addNewServer input {
+  font-family: odudo;
+}
+
+.addNewServer input:focus+.label,
+.addNewServer input:not(:placeholder-shown)+.label {
+  top: -0.1rem;
+  font-size: 0.8rem;
+}
+
+.addNewServer input:focus+.label {
+  color: var(--tg-theme-button-color);
+  opacity: 1;
+}
+
+.addNewServer .radioItem {
+  height: 1rem;
+}
+
+.addNewServer input[type="radio"] {
+  /* Add if not using autoprefixer */
+  -webkit-appearance: none;
+  /* Remove most all native input styles */
+  appearance: none;
+  /* For iOS < 15 */
+  background-color: var(--tg-theme-secondary-bg-color);
+  /* Not removed via appearance */
+  margin: 0;
+
+  font: inherit;
+  color: currentColor;
+  width: 1.15em;
+  height: 1.15em;
+  border: 0.15em solid currentColor;
+  border-radius: 50%;
+  transform: translateY(-0.075em);
+
+  display: grid;
+  place-content: center;
+  padding: 0;
+  float: left;
+  margin: 0 0.5rem 0 0;
+}
+
+.addNewServer input[type="radio"]::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em var(--tg-theme-button-color);
+  /* Windows High Contrast Mode */
+  background-color: CanvasText;
+}
+
+.addNewServer input[type="radio"]:checked::before {
+  transform: scale(1);
+}
+
+.addNewServer input[type="radio"]:focus {
+  outline: max(2px, 0.15em) solid var(--tg-theme-button-color);
+  outline-offset: max(2px, 0.15em);
+}
+
+.addNewServer input[type=file] {
+  padding: 0;
+}
+
+.addNewServer input[type=file]::file-selector-button {
+  margin: 0 20px 0 0;
+  height: 2rem;
+  border: none;
+  background: var(--tg-theme-button-color);
+  padding: 10px 20px;
+  border-radius: 20px;
+  color: #fff;
+  cursor: pointer;
+  transition: filter .2s ease-in-out;
+}
+
+.addNewServer input[type=file]::file-selector-button:hover {
+  filter: brightness(1.1);
+}
+
+.addNewServer .fileLabel {
+  top: -0.1rem;
+  font-size: 0.8rem;
 }

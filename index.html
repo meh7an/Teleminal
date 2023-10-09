@@ -52,6 +52,94 @@
         <button class="terminalButton" id="terminalButton"></button>
       </div>
     </div>
+    <div class="addNewServer" id="addNewServer">
+      <form id="addNewServerForm">
+        <div>
+          <input
+            placeholder=" "
+            type="text"
+            name="serverIp"
+            id="serverIp"
+            autocapitalize="off"
+            required
+          />
+          <label class="label" htmlFor="serverIp">Server Address</label>
+        </div>
+
+        <div>
+          <input
+            placeholder=" "
+            type="number"
+            name="portNumber"
+            value="22"
+            id="portNumber"
+            required
+          />
+          <label class="label" htmlFor="portNumber">Port Number</label>
+        </div>
+
+        <div>
+          <input
+            placeholder=" "
+            type="text"
+            name="username"
+            id="username"
+            autocapitalize="off"
+            required
+          />
+          <label class="label" htmlFor="username">Username</label>
+        </div>
+
+        <label>Password Type:</label>
+        <div class="radioItem">
+          <input
+            type="radio"
+            id="passwordRadio"
+            name="authType"
+            value="password"
+            class="radioInput"
+          />
+          Password
+        </div>
+        <div class="radioItem">
+          <input
+            type="radio"
+            id="privateKeyRadio"
+            name="authType"
+            value="privateKey"
+            class="radioInput"
+          />
+          Private Key
+        </div>
+        <div class="radioItem">
+          <input
+            type="radio"
+            id="bothRadio"
+            name="authType"
+            value="both"
+            class="radioInput"
+          />
+          Both
+        </div>
+        <div
+          id="privateKeyField"
+          style="display: none; flex-direction: column; margin-top: 2rem"
+        >
+          <label class="label fileLabel" for="privateKey">Private Key:</label>
+          <input type="file" id="privateKey" name="privateKey" />
+        </div>
+        <div id="passwordField" style="display: none">
+          <input
+            placeholder=" "
+            type="password"
+            name="password"
+            id="password"
+            required
+          />
+          <label class="label" htmlFor="password">Password</label>
+        </div>
+      </form>
+    </div>
     <div class="not-supported">This webapp works only in Telegram.</div>
   </body>
 </html>

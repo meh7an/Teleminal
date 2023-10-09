@@ -1,8 +1,6 @@
 "use strict"
 console.log(window.Telegram.WebApp);
 import Convert from "ansi-to-html";
-import ansiRegex from "ansi-regex";
-
 const convert = new Convert();
 const terminal = document.getElementById('terminal')
 const historyBox = document.getElementById('history')
@@ -10,26 +8,7 @@ const historyScroll = document.getElementById('history-scroll')
 const inputBg = document.getElementById('inputBg')
 const addMessage = (message) => {
     // check if message has a \r in it. if it does, remove everything before it.
-    message = convert.toHtml(message.replace(/ /g, '&nbsp;'), {
-        colors: {
-            0: "#000",
-            1: "#A00",
-            2: "#0A0",
-            3: "#A50",
-            4: "#00A",
-            5: "#A0A",
-            6: "#0AA",
-            7: "#AAA",
-            8: "#555",
-            9: "#F55",
-            10: "#5F5",
-            11: "#FF5",
-            12: "#55F",
-            13: "#F5F",
-            14: "#5FF",
-            15: "#FFF",
-        },
-    })
+    message = convert.toHtml(message.replace(/ /g, '&nbsp;'))
     message = message.replace(/\n/g, '<br>').replace(/\e\[[^\e]*?m/g, '').replace(//g, '').replace(/^\n?(?<=$3>).*$/g, '');
     // message = message
     if (message.startsWith('\r')) {
@@ -46,18 +25,17 @@ const addMessage = (message) => {
 }
 const webApp = window.Telegram.WebApp
 //get the url arguments
-const args = webApp.initParams
+const data = webApp.initDataUnsafe.start_param
 // webApp.MainButton.show()
 const platform = webApp.platform
-const main = function () {
-    document.body.classList.add(platform)
+const main = function (data) {
     if (platform === "unknown") {
         return;
     }
+    document.body.classList.add(platform)
     let sudo = false
     let sudoCommand = ""
     const initParams = window.Telegram.WebView.initParams
-    const data = window.Telegram.WebApp.initDataUnsafe.start_param
     // data is base64. turn it into a string
     const themeParams = JSON.parse(initParams.tgWebAppThemeParams)
     console.log(themeParams);
@@ -134,6 +112,7 @@ const main = function () {
 
     socket.addEventListener('open', (event) => {
         addMessage('Connected to server')
+        socket.send(data)
         darkTheme()
     });
 
@@ -287,5 +266,147 @@ const main = function () {
     })
 
 }
+const addServer = () => {
 
-main()
+    const toggleAuthFields = () => {
+        const passwordField = document.getElementById('passwordField');
+        const privateKeyField = document.getElementById('privateKeyField');
+
+        const passwordRadio = document.getElementById('passwordRadio');
+        const privateKeyRadio = document.getElementById('privateKeyRadio');
+        const bothRadio = document.getElementById('bothRadio');
+
+        if (passwordRadio.checked) {
+            passwordField.style.display = 'flex';
+            privateKeyField.style.display = 'none';
+        } else if (privateKeyRadio.checked) {
+            passwordField.style.display = 'none';
+            privateKeyField.style.display = 'flex';
+        } else if (bothRadio.checked) {
+            passwordField.style.display = 'flex';
+            privateKeyField.style.display = 'flex';
+        }
+    }
+    const submitServer = async () => {
+        const serverAddress = document.getElementById('serverIp').value
+        const serverPort = document.getElementById('portNumber').value
+        const serverUsername = document.getElementById('username').value
+        const authType = document.querySelector('input[name="authType"]:checked')?.value
+        let serverPrivateKey
+        let serverPassword
+        let fileContent
+        if (authType !== "password") {
+            serverPrivateKey = document.getElementById('privateKey').files[0]
+            if (serverPrivateKey.size > 4096) {
+                webApp.showAlert("The private key file is too big. Please upload a smaller file.")
+                return
+            }
+            const privateKeyPattern = /(-----BEGIN (?:ENCRYPTED )?(?:RSA|DSA|EC|OPENSSH) PRIVATE KEY-----)(?:\n|.)*?(-----END (?:ENCRYPTED )?(?:RSA|DSA|EC|OPENSSH) PRIVATE KEY-----)/;
+            fileContent = await serverPrivateKey.text()
+            if (!privateKeyPattern.test(fileContent)) {
+                webApp.showAlert("The private key file is not valid. Please upload a valid file.")
+                return
+            }
+        }
+        if (authType !== "privateKey") {
+            serverPassword = document.getElementById('password').value
+        }
+
+        const sendingData = {
+            address: serverAddress,
+            port: serverPort,
+            username: serverUsername,
+            auth: {
+                type: authType,
+                password: serverPassword,
+                privateKey: fileContent
+            },
+            initData: Telegram.WebApp.initData
+        }
+
+        const response = await fetch('https://webapp.mehran.tech/api/getserverinfo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(sendingData)
+        })
+        const data = await response.json()
+        //get data status
+        const status = data.status
+        if (status !== 200) {
+            webApp.showAlert(data.error)
+            return
+        }
+        const keyValuePairs = [
+            { key: "address", value: sendingData.address },
+            { key: "port", value: sendingData.port },
+            { key: "username", value: sendingData.username },
+            { key: "auth", value: JSON.stringify(sendingData.auth) },
+            { key: "initData", value: sendingData.initData }
+        ];
+        for (const { key, value } of keyValuePairs) {
+            webApp.CloudStorage.setItem(key, value);
+        }
+        webApp.showAlert("Server added successfully.")
+
+
+    }
+    // check if all necessary fields are filled
+    const checkFields = () => {
+        const serverAddress = document.getElementById('serverIp').value
+        const serverPort = document.getElementById('portNumber').value
+        const serverUsername = document.getElementById('username').value
+        const authType = document.querySelector('input[name="authType"]:checked')?.value
+        const serverPassword = document.getElementById('password').value
+        const serverPrivateKey = document.getElementById('privateKey').value
+        if (serverAddress && serverPort && serverUsername && authType && ((authType === "password" && serverPassword) || (authType === "privateKey" && serverPrivateKey) || (serverPassword && serverPrivateKey))) {
+            webApp.MainButton.show()
+            webApp.MainButton.text = "Add Server"
+        }
+        else {
+            webApp.MainButton.hide()
+        }
+    }
+    addNewServerForm.addEventListener('input', () => {
+        toggleAuthFields()
+        checkFields()
+    });
+    webApp.MainButton.onClick(() => {
+        if (webApp.MainButton.text === "Add Server") {
+            submitServer()
+            webApp.MainButton.hide()
+        }
+    })
+}
+if (platform !== "unknown") {
+    if (data) {
+        document.getElementById('terminal').style.display = "flex"
+        main(data)
+    }
+    else {
+        webApp.CloudStorage.getItems(["address", "port", "auth", "username"], (err, data) => {
+            if (err) {
+                document.getElementById('addNewServer').style.display = "flex"
+                addServer()
+                return
+            }
+            if (data.address && data.port && data.auth && data.username) {
+                const serverData = {
+                    address: data.address,
+                    port: data.port,
+                    username: data.username,
+                    auth: JSON.parse(data.auth),
+                }
+                document.getElementById('terminal').style.display = "flex"
+                main(JSON.stringify(serverData))
+            }
+            else {
+                document.getElementById('addNewServer').style.display = "flex"
+                addServer()
+            }
+        }
+        )
+    }
+}
+
