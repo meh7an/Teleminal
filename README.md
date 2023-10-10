@@ -4,7 +4,7 @@ This is a Telegram bot that allows you to access a terminal SSH mini app directl
 
 1. **Web** (Located in the `client` folder)
 
-   - The UI is not using any frameworks and it's written by plain JavaScript.
+   - The UI is not using any frameworks, and it's written in plain JavaScript.
 
 2. **Server** (Located in the `server` folder)
 
@@ -72,6 +72,8 @@ To add a new server to the Telegram SSH Mini App Bot, follow these steps:
 
 4. After sharing the server information, the bot will process it and establish a connection to the server.
 
-5. Once the connection is established, you will receive a connection message indicating that the server has been added successfully. Also, you will get the connection info from the bot's chat.
+5. Once the connection is established, you will receive a connection message indicating that the server has been added successfully. Also, you will get the connection information from the bot's chat.
+
+6. You can also send the `/shortcut` command to create a shareable shortcut directly using the bot interface.
 
 Enjoy using your Telegram SSH Mini App Bot! If you encounter any issues or have questions, please refer to the [GitHub Issues](https://github.com/meh7an/Teleminal/issues).
