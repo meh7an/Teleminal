@@ -56,7 +56,9 @@ Follow these steps to configure and run the Telegram SSH Mini App Bot:
      npm run start
      ```
 
-Your Telegram SSH Mini App Bot should now be up and running. You can interact with the bot in your Telegram bot to open and use the SSH mini app:
+<img src="/screenshot.jpg">
+
+Your Telegram SSH Mini App Bot should now be up and running. You can interact with the bot in your Telegram bot to open and use the SSH mini app.
 
 ## Usage
 
