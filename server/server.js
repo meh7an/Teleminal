@@ -5,15 +5,12 @@ import express from "express";
 import bodyParser from "body-parser";
 import { NodeSSH } from "node-ssh";
 import fs from "fs";
-import https from "https";
 import { fileURLToPath } from 'url';
 import path from 'path';
 import forge from "node-forge";
-import { Bot, session, Keyboard, InlineKeyboard } from "grammy";
+import { Bot, session, InputFile, InlineKeyboard } from "grammy";
 import { hydrateFiles } from "@grammyjs/files";
 import crypto from 'crypto';
-import HmacSHA256 from "crypto-js/hmac-sha256.js";
-import Hex from "crypto-js/enc-hex.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -45,11 +42,11 @@ const main = () => {
 
     bot.command("start", (ctx) => {
         ctx.session.state = 0;
-        return ctx.reply("Welcome!");
+        return ctx.reply("I can help you connect to your servers by SSH connection directly in Telegram using a fancy mini-app UI.\n\nYou can connect by these two ways:\n\n/addserver - Bind a server to your Telegram account\n/shortcut - Create a shortcut to connect instantly and share to others.");
     });
 
 
-    bot.command("register", (ctx) => {
+    bot.command("addserver", (ctx) => {
         return ctx.reply("Tap to add a new server by web interface.", {
             reply_markup: inlineKeyboard,
         });
@@ -73,7 +70,7 @@ const main = () => {
     }
 
 
-    bot.command("addserver", (ctx) => {
+    bot.command("shortcut", (ctx) => {
         ctx.session.state = 1;
         return ctx.reply("Please enter the server address.\n\nExample:\n123.123.123.123\nor\naddress.tld");
     });
@@ -160,7 +157,7 @@ const main = () => {
                 const file = await ctx.getFile();
                 const filePath = await file.download()
                 if (isPEMFile(filePath)) {
-                    ctx.session.serverPrivateKey = file.file_path;
+                    ctx.session.serverPrivateKey = file.file_id;
                     if (ctx.session.state === 6) {
                         ctx.session.state = 8;
                         sendConnection(ctx, ctx.session.serverAddress, ctx.session.serverPort, ctx.session.serverUsername, {
@@ -194,7 +191,7 @@ const main = () => {
 
         const server = http.createServer(app);
         const wss = new WebSocketServer({ server, maxPayload: 131072 });
-        const port = 4602;
+        const port = process.env.PORT ?? 3000;
         const verifyInitData = (initData) => {
             const urlParams = new URLSearchParams(initData);
             const hash = urlParams.get('hash');
@@ -228,11 +225,24 @@ const main = () => {
                 const userField = urlParams.get("user");
                 const userObject = JSON.parse(decodeURIComponent(userField));
                 const userId = userObject.id;
-                const dataKeyboard = new InlineKeyboard().webApp(
+                if (auth.type === "privateKey" && auth.privateKey) {
+                    // send private key to user by its buffer
+                    console.log("private key" + auth.privateKeyDir);
+                    const privateKeyBuffer = Buffer.from(auth.privateKey, "utf-8");
+                    const readStream = new InputFile(privateKeyBuffer, "privateKey.pem");
+                    const privatekeySend = await bot.api.sendDocument(userId, readStream, {
+                        caption: "Private key for the server.",
+
+                    });
+                    data.auth.privateKeyDir = privatekeySend.document.file_id;
+                    data.auth.privateKey = null;
+                }
+                const dataKeyboard = new InlineKeyboard().url(
                     "Connect to Terminal",
-                    process.env.URL
+                    `https://t.me/${process.env.BOT_ID}/${process.env.APP_ID}?startapp=${Buffer.from(JSON.stringify(data)).toString('base64')}`
                 );
-                await bot.api.sendMessage(userId, `🖥 ${address}\n🔐 ${auth.type}`, {
+                await bot.api.sendMessage(userId, `I also make a shortcut for you to use any time or to share to others.`);
+                await bot.api.sendMessage(userId, `Connection shortcut:\n🖥 ${address}\n🔐 ${auth.type}`, {
                     reply_markup: dataKeyboard
                 });
                 return res.json({ status: 200, response: "Data Sent." });
@@ -274,23 +284,12 @@ const main = () => {
                 authData.password = auth.password
             }
             if (authType !== "password" && !auth.privateKey && auth.privateKeyDir) {
-                console.log('dir');
-                const fileName = auth.privateKeyDir.split("/")[1]
-                if (!fs.existsSync(`${__dirname}/tmp`)) {
-                    fs.mkdirSync(`${__dirname}/tmp`);
-                }
-                keyPath = `${__dirname}/tmp/${fileName}`
-                const token = process.env.TOKEN
-                await new Promise((resolve, reject) => {
-                    https.get(`https://api.telegram.org/file/bot${token}/${auth.privateKeyDir}`, function (response) {
-                        response.on('data', function (data) {
-                            authData.privateKey = data.toString()
-                            resolve();
-                        });
-                    });
-                })
+                const fileId = auth.privateKeyDir
+                const file = await bot.api.getFile(fileId);
+                keyPath = `${__dirname}/tmp/${fileId}`
+                const filePath = await file.download(keyPath);
+                authData.privateKey = fs.readFileSync(filePath, 'utf8');
             }
-            console.log(authData);
             const connect = () => {
                 ssh
                     .connect({

@@ -1,5 +1,4 @@
 "use strict"
-console.log(window.Telegram.WebApp);
 import Convert from "ansi-to-html";
 const convert = new Convert();
 const terminal = document.getElementById('terminal')
@@ -10,7 +9,6 @@ const addMessage = (message) => {
     // check if message has a \r in it. if it does, remove everything before it.
     message = convert.toHtml(message.replace(/ /g, '&nbsp;'))
     message = message.replace(/\n/g, '<br>').replace(/\e\[[^\e]*?m/g, '').replace(//g, '').replace(/^\n?(?<=$3>).*$/g, '');
-    // message = message
     if (message.startsWith('\r')) {
         //get the last div in historyBox
         const lastDiv = historyBox.lastChild
@@ -51,7 +49,6 @@ const main = function (data) {
     if (platform === "unknown") {
         return;
     }
-    document.body.classList.add(platform)
     let sudo = false
     let sudoCommand = ""
     const initParams = window.Telegram.WebView.initParams
@@ -59,35 +56,34 @@ const main = function (data) {
     console.log(themeParams);
     const terminalInput = document.getElementById('terminal-input')
     const terminalButton = document.getElementById('terminalButton')
-    webApp.setHeaderColor(webApp.themeParams.bg_color)
-    webApp.setBackgroundColor(webApp.themeParams.bg_color)
-    webApp.SettingsButton.show()
     const svgFile = `icons/send-${platform}.svg`
-    const getSVG = (svgFile) => fetch(svgFile)
+    const svgBackup = `icons/send-macos.svg`
+    const getSVG = (svgFile, item, svgBackup) => fetch(svgFile)
         .then(response => response.text())
         .then(svg => {
             const svgRegex = /<svg.*<\/svg>/g
             svg = svg.match(svgRegex)[0]
-            addMessage(svg)
-            terminalButton.innerHTML = svg
+            if (svg.length < 20) {
+                const svgRegex = /<svg.*<\/svg>/g
+            }
+            item.innerHTML = svg
         })
         .catch(err => {
             console.log(err);
-            const svgBackup = `icons/send-macos.svg`
             if (svgFile === svgBackup) {
                 return
             }
-            getSVG(svgBackup)
+            getSVG(itemBackup)
             return
         });
-    getSVG(svgFile)
+    getSVG(svgFile, terminalButton, svgBackup)
+    const settingsButton = document.getElementById('settingsButton')
+    const svgSettings = `icons/settings.svg`
+    getSVG(svgSettings, settingsButton, svgSettings)
     const hideButton = () => {
         terminalButton.style.opacity = 0
-        if (platform === "ios") {
-            terminalButton.style.margin = 0
-            terminalInput.style.marginRight = "0.8rem"
-        }
-        if (platform === "tdesktop" || platform === "android" || platform === "ios") {
+
+        if (platform === "tdesktop" || platform === "android" || platform === "ios" || platform === "macos") {
             terminalButton.style.width = 0
             terminalButton.style.height = 0
             terminalButton.style.padding = 0
@@ -97,15 +93,14 @@ const main = function (data) {
     const showButton = () => {
         const buttonIcon = terminalButton.firstChild
         terminalButton.style.opacity = 1
-        if (platform === "ios") {
-            terminalButton.style.margin = "0 0.8rem 0 0.4rem"
-            terminalInput.style.marginRight = 0
-        }
-        if (platform === "tdesktop" || platform === "android" || platform === "ios") {
-            terminalButton.style.width = "2.7rem"
+        if (platform === "tdesktop" || platform === "android" || platform === "ios" || platform === "macos") {
+            terminalButton.style.width = "2.2rem"
             terminalButton.style.height = "2.2rem"
             terminalButton.style.padding = "0.4rem"
             terminalButton.firstChild.style.width = "1.5rem"
+        }
+        if (platform === "ios") {
+            terminalButton.style.marginRight = "0.6rem"
         }
     }
 
@@ -117,7 +112,7 @@ const main = function (data) {
             hideButton()
         }
     })
-    const socket = new WebSocket(`wss://webapp.mehran.tech/api/${data}`);
+    const socket = new WebSocket(`wss://webapp.mehran.tech/api/`);
     const darkTheme = () => {
         if (webApp.colorScheme === "dark") {
             document.body.classList.add("dark")
@@ -128,7 +123,6 @@ const main = function (data) {
     }
 
     socket.addEventListener('open', (event) => {
-        addMessage('Connected to server')
         socket.send(data)
         darkTheme()
     });
@@ -194,7 +188,6 @@ const main = function (data) {
             terminalInput.type = "password"
             terminalInput.placeholder = "Type the sudo password"
             terminalInput.value = ""
-            // wait for the user to type the password in terminalInput
             sudo = true
             sudoCommand = command.replace("sudo ", "")
             return
@@ -202,6 +195,50 @@ const main = function (data) {
         const ending = tab ? '\x09' : '\n'
         socket.send(command + ending)
     }
+    const settingsPage = document.getElementById('settingsPage')
+    const dim = document.getElementById('dim')
+    const version = webApp.version.split(".")
+    webApp.SettingsButton.show()
+    if ((version[0] < 6) || (Number(version[0]) === 6 && Number(version[1]) < 10)) {
+        settingsButton.style.display = "flex"
+        settingsButton.addEventListener('click', () => {
+            settingsPage.style.opacity = "1"
+            settingsPage.style.pointerEvents = "all"
+            dim.style.opacity = "0.5"
+            webApp.BackButton.show()
+        })
+    }
+    else {
+        webApp.SettingsButton.onClick(() => {
+            settingsPage.style.opacity = "1"
+            settingsPage.style.pointerEvents = "all"
+            dim.style.opacity = "0.5"
+            webApp.BackButton.show()
+        })
+    }
+    webApp.BackButton.onClick(() => {
+        settingsPage.style.opacity = "0"
+        settingsPage.style.pointerEvents = "none"
+        dim.style.opacity = "0"
+        webApp.BackButton.hide()
+    })
+    dim.addEventListener('click', () => {
+        settingsPage.style.opacity = "0"
+        settingsPage.style.pointerEvents = "none"
+        dim.style.opacity = "0"
+        webApp.BackButton.hide()
+    })
+    const deleteServer = document.getElementById('deleteServer')
+    deleteServer.addEventListener('click', () => {
+        webApp.showConfirm("Are you sure you want to delete this server?", (isOK) => {
+            if (!isOK) {
+                return
+            }
+            webApp.CloudStorage.removeItem("address")
+            webApp.showAlert("Server deleted successfully.")
+            webApp.close()
+        })
+    })
     terminalInput.addEventListener('keydown', async (event) => {
         if (event.key === 'Enter') {
             if (sudo) {
@@ -264,7 +301,8 @@ const main = function (data) {
         }
         else if (webApp.MainButton.text === "Reconnect") {
             webApp.MainButton.hide()
-            main(data)
+            // reload the page
+            window.location.reload()
         }
     })
     Telegram.WebApp.onEvent('themeChanged', (e) => {
@@ -272,19 +310,15 @@ const main = function (data) {
     })
 
     terminalInput.addEventListener('click', () => {
-        // inputBg.style.top = window.innerHeight - 50 + "px"
         if (platform === "ios") {
             webApp.MainButton.text = "Close Keyboard"
             webApp.MainButton.show()
-            // historyScroll.style.height = `calc (${webApp.viewportHeight}px - 2.8rem)`
-            // scroll to the bottom of the page
             terminal.scrollTo(0, 0);
         }
     })
 
 }
 const addServer = () => {
-
     const toggleAuthFields = () => {
         const passwordField = document.getElementById('passwordField');
         const privateKeyField = document.getElementById('privateKeyField');
@@ -296,12 +330,29 @@ const addServer = () => {
         if (passwordRadio.checked) {
             passwordField.style.display = 'flex';
             privateKeyField.style.display = 'none';
+            if (platform === "ios") {
+                passwordField.querySelector('input').style.borderTopLeftRadius = '0.7rem';
+                passwordField.querySelector('input').style.borderTopRightRadius = '0.7rem';
+            }
         } else if (privateKeyRadio.checked) {
             passwordField.style.display = 'none';
             privateKeyField.style.display = 'flex';
+            if (platform === "ios") {
+                privateKeyField.querySelector('input').style.borderBottomLeftRadius = '0.7rem';
+                privateKeyField.querySelector('input').style.borderBottomRightRadius = '0.7rem';
+                privateKeyField.classList.add("hide-after");
+
+            }
         } else if (bothRadio.checked) {
             passwordField.style.display = 'flex';
             privateKeyField.style.display = 'flex';
+            if (platform === "ios") {
+                passwordField.querySelector('input').style.borderTopLeftRadius = '0';
+                passwordField.querySelector('input').style.borderTopRightRadius = '0';
+                privateKeyField.querySelector('input').style.borderBottomLeftRadius = '0';
+                privateKeyField.querySelector('input').style.borderBottomRightRadius = '0';
+                privateKeyField.classList.remove("hide-after");
+            }
         }
     }
     const submitServer = async () => {
@@ -372,7 +423,6 @@ const addServer = () => {
         main(JSON.stringify(sendingData))
 
     }
-    // check if all necessary fields are filled
     const checkFields = () => {
         const serverAddress = document.getElementById('serverIp').value
         const serverPort = document.getElementById('portNumber').value
@@ -398,8 +448,27 @@ const addServer = () => {
             webApp.MainButton.hide()
         }
     })
+    // click on radiobutton parent to check the radio button
+    const radioButtons = document.getElementsByClassName('radioItem')
+    for (const radioButton of radioButtons) {
+        radioButton.addEventListener('click', () => {
+            radioButton.querySelector('input').checked = true
+            radioButton.classList.add('radioItemHover')
+            setTimeout(() => {
+                radioButton.classList.remove('radioItemHover')
+            }, 100);
+            toggleAuthFields()
+            checkFields()
+        })
+    }
 }
 if (platform !== "unknown") {
+    document.body.classList.add(platform)
+    webApp.setHeaderColor(webApp.themeParams.bg_color)
+    webApp.setBackgroundColor(webApp.themeParams.bg_color)
+    if (platform === "android") {
+        webApp.setBackgroundColor(webApp.themeParams.secondary_bg_color)
+    }
     if (sendingData) {
         document.getElementById('terminal').style.display = "flex"
         main(JSON.stringify(sendingData))

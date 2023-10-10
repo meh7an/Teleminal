@@ -1,7 +1,5 @@
 /node_modules
-/dist
+/client/dist
 /bot/node_modules
 /server/tmp
 /.env
-/bot/.env
-/server/tmp

@@ -39,8 +39,8 @@
     "webpack-cli": "^5.1.4"
   },
   "scripts": {
-    "start:client": "webpack --mode development",
-    "start:server": "nodemon server/server.js",
+    "start:client": "webpack --mode production",
+    "start:server": "node server/server.js",
     "start": "concurrently \"npm run start:client\" \"npm run start:server\""
   },
   "author": "",

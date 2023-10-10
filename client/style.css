@@ -1,0 +1,791 @@
+@font-face {
+  font-family: "odudo";
+  src: url("fonts/Mono.eot");
+  src: url("fonts/Mono.eot?#iefix") format("embedded-opentype"),
+    url("fonts/Mono.woff2") format("woff2"),
+    url("fonts/Mono.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  color: var(--tg-theme-text-color);
+  margin: 0;
+  font-size: 16px;
+  overflow: hidden;
+  height: var(--tg-viewport-height);
+  background-color: var(--tg-theme-bg-color);
+}
+
+.terminal {
+  height: var(--tg-viewport-height);
+  overflow: hidden;
+  width: 100%;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  position: fixed;
+  left: 0;
+  transition: 0.3s;
+  display: none;
+}
+
+.addNewServer {
+  display: none;
+}
+
+.settingsPage {
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  flex-direction: column;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+}
+
+.historyScroll {
+  height: 100%;
+  overflow: hidden scroll;
+  margin: 0 0.8rem;
+  background-color: var(--tg-theme-secondary-bg-color);
+  border-radius: 10px;
+}
+
+.history {
+  color: #fff;
+  font-family: odudo, monospace;
+  display: flex;
+  padding: 0.5rem 0.2rem;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  min-height: calc(100% - 1rem);
+}
+
+.history div {
+  width: 100%;
+  font-size: 0.8rem;
+  word-break: break-all;
+  margin: 0.2rem 0;
+  filter: contrast(5) brightness(0.5);
+  color: #000
+}
+
+.dark .history div {
+  width: 100%;
+  font-size: 0.8rem;
+  word-break: break-all;
+  margin: 0.2rem 0;
+  filter: contrast(0.9) brightness(12);
+  color: #fff;
+}
+
+.inputBg {
+  width: 100%;
+  height: 2.5rem;
+  background-color: var(--tg-theme-bg-color);
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.terminalInput {
+  width: 100%;
+  height: 100%;
+  outline: 0;
+  margin: 0;
+  border: 0;
+  font-family: odudo, monospace;
+  background-color: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
+  font-size: 0.9rem;
+  padding: 0 1rem;
+  transition: 0.1s;
+}
+
+.terminalInput::placeholder {
+  color: var(--tg-theme-text-color);
+  opacity: 0.5;
+}
+
+.terminalButton,
+.actionButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  background-size: 2rem;
+  background-repeat: no-repeat;
+  background-position: center;
+  color: var(--tg-theme-button-color);
+  border: 0;
+  outline: 0;
+  background: none;
+  opacity: 0;
+  cursor: pointer;
+  transition: 0.1s;
+  display: flex;
+  align-items: center;
+}
+
+.actionButton {
+  opacity: 1;
+}
+
+.terminalButton path,
+.actionButton path {
+  fill: var(--tg-theme-button-color);
+}
+
+.actionButton svg {
+  width: 1.7rem
+}
+
+.not-supported {
+  display: none;
+}
+
+.unknown .not-supported {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.addNewServer {
+  position: relative;
+  display: none;
+  justify-content: center;
+  margin: auto;
+  align-items: center;
+  flex-direction: column;
+  font-family: odudo;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  justify-content: flex-start;
+}
+
+.addNewServerForm {
+  min-width: 80%;
+}
+
+.addNewServer input {
+  font-family: odudo;
+  display: flex;
+  margin: auto;
+  width: 100%;
+  height: 3rem;
+  border-radius: 1rem;
+  padding: 0 1rem;
+  border: 0;
+  outline: 0;
+  background-color: var(--tg-theme-secondary-bg-color);
+  color: var(--tg-theme-text-color);
+  font-size: 0.9rem;
+}
+
+.addNewServer .label {
+  position: absolute;
+  pointer-events: none;
+  line-height: 0;
+  top: 1.5rem;
+  left: 0.5rem;
+  transition: 0.2s ease;
+  color: var(--tg-theme-text-color);
+  opacity: 0.5;
+  font-size: 0.9rem;
+}
+
+.addNewServer .inputItem {
+  position: relative;
+  width: 100%;
+  margin: 1rem 0;
+  height: 3rem;
+  display: flex;
+  align-items: baseline;
+}
+
+.addNewServer input:focus+.label,
+.addNewServer input:not(:placeholder-shown)+.label {
+  top: -0.1rem;
+  font-size: 0.8rem;
+}
+
+.addNewServer input:focus+.label {
+  color: var(--tg-theme-button-color);
+  opacity: 1;
+}
+
+.addNewServer .radioItem {
+  height: 1rem;
+  color: var(--tg-theme-text-color);
+  margin: 0;
+  padding: 0.8rem 0;
+  display: flex;
+  align-items: baseline;
+}
+
+.addNewServer input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: var(--tg-theme-secondary-bg-color);
+  margin: 0;
+  font: inherit;
+  color: currentColor;
+  width: 1.15em;
+  height: 1.15em;
+  border: 0.15em solid currentColor;
+  border-radius: 50%;
+  transform: translateY(-0.075em);
+  display: grid;
+  place-content: center;
+  padding: 0;
+  float: left;
+  margin: 0 0.5rem 0 0;
+}
+
+.addNewServer input[type="radio"]::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em var(--tg-theme-button-color);
+  background-color: var(--tg-theme-text-color);
+}
+
+.addNewServer input[type="radio"]:checked::before {
+  width: 0.5em;
+  height: 0.5em;
+  transform: scale(1);
+}
+
+.addNewServer input[type="radio"]:focus {
+  outline: max(2px, 0.15em) solid var(--tg-theme-button-color);
+  outline-offset: max(2px, 0.15em);
+}
+
+.addNewServer input[type=file] {
+  padding: 0;
+}
+
+.addNewServer input[type=file]::file-selector-button {
+  margin: 0 20px 0 0;
+  height: 2rem;
+  border: none;
+  background: var(--tg-theme-button-color);
+  padding: 10px 20px;
+  border-radius: 20px;
+  color: var(--tg-theme-text-color);
+  cursor: pointer;
+  transition: filter .2s ease-in-out;
+}
+
+.addNewServer input[type=file]::file-selector-button:hover {
+  filter: brightness(1.1);
+}
+
+.addNewServer .fileLabel {
+  top: -0.1rem;
+  font-size: 0.8rem;
+}
+
+.settings {
+  width: 2.1rem;
+  height: 2.1rem;
+  position: absolute;
+  top: 0;
+  right: 1.1rem;
+  background-color: #0000;
+  outline: 0;
+  border: 0;
+  background-color: var(--tg-theme-secondary-bg-color);
+  border-radius: 0 0.5rem 0 0;
+  display: none;
+  border-radius: 0.5rem;
+  transition: 0.2s;
+  align-items: center;
+  z-index: 1;
+}
+
+.ios .settings {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 100%;
+}
+
+body:not(.ios) .settings:hover {
+  cursor: pointer;
+  background-color: var(--tg-theme-button-color);
+}
+
+.settings svg {
+  width: 100%
+}
+
+.settings svg path {
+  stroke: var(--tg-theme-text-color) !important;
+  opacity: 0.5;
+}
+
+.ios .settings svg path {
+  opacity: 1;
+}
+
+.settings:hover svg path {
+  stroke: var(--tg-theme-text-color) !important;
+  opacity: 1;
+}
+
+.settingsItem {
+  height: 3rem;
+  background-color: var(--tg-theme-secondary-bg-color);
+  color: var(--tg-theme-hint-color);
+  outline: 0;
+  border: 0;
+  cursor: pointer;
+  z-index: 1;
+  width: 100%;
+}
+
+.dim {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: var(--tg-theme-bg-color);
+  opacity: 0;
+}
+
+/* iOS styles */
+.ios .historyScroll {
+  border-radius: 25px;
+}
+
+
+.ios .inputBg {
+  height: 3.5rem;
+}
+
+.ios .terminalButton svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ios .terminalInput {
+  margin: 0.5rem 0.3rem 0.5rem 0.8rem;
+  height: 2.2rem;
+  padding: 0 1rem;
+  width: 100%;
+  border-width: 1px 0;
+  background-color: var(--tg-theme-secondary-bg-color);
+  color: var(--tg-theme-text-color);
+  border-radius: 100px;
+  transition: 0.2s;
+}
+
+.ios .terminalButton {
+  background-color: var(--tg-theme-button-color);
+  height: 2.2rem;
+  width: 0;
+  padding: 0;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.ios .terminalButton path {
+  fill: #fff;
+}
+
+.ios .actionButton svg {
+  width: 2.7rem;
+}
+
+.ios .actionButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  margin: 0rem 0.4rem 0 0;
+}
+
+
+.ios .addNewServerForm {
+  min-width: calc(100% - 3rem);
+}
+
+.ios .addNewServerForm>label {
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  opacity: 0.5;
+  margin-left: 1rem
+}
+
+.ios .addNewServer .inputItem {
+  height: 3rem;
+  margin: 0;
+}
+
+.ios .addNewServer .inputItem:not(:last-child)::after,
+.ios .addNewServer .radioItem:not(:last-child)::after {
+  position: absolute;
+  content: '';
+  color: var(--tg-theme-text-color);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+  width: calc(100% - 1rem);
+  transform: translateX(-50%);
+  bottom: 0;
+  left: calc(50% + 0.5rem);
+  z-index: 1;
+}
+
+.ios .addNewServer .radioItem:not(:last-child)::after {
+  width: calc(100% - 2.6rem);
+  left: calc(50% + 1.3rem);
+}
+
+
+.ios .addNewServer .hide-after::after {
+  display: none;
+}
+
+
+.ios .addNewServer input {
+  border-radius: 0
+}
+
+.ios .addNewServer .inputField,
+.ios .addNewServer .radioField,
+.ios .addNewServer .authField {
+  border-radius: 0.7rem;
+  overflow: hidden;
+  margin: 0.4rem 0 2rem 0;
+}
+
+.ios .addNewServer>label {
+  text-transform: uppercase
+}
+
+.ios .addNewServer .label {
+  top: 1.4rem;
+  left: 1rem;
+}
+
+.ios .addNewServer input:focus+.label,
+.ios .addNewServer input:not(:placeholder-shown)+.label {
+  top: 1.5rem;
+  font-size: 0.9rem;
+  opacity: 0;
+}
+
+.ios .addNewServer .radioItem {
+  background-color: var(--tg-theme-secondary-bg-color);
+  padding: 0.8rem 1rem;
+  height: 1.5rem;
+  position: relative;
+  transition: 0.3s;
+  align-items: stretch;
+}
+
+.ios .addNewServer .radioItemHover {
+  filter: brightness(1.3);
+}
+
+.ios .addNewServer input[type="radio"] {
+  color: #0000
+}
+
+.ios .addNewServer input[type="radio"]::before {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.3rem;
+  background-color: transparent;
+  box-shadow: none;
+  background-color: var(--tg-theme-button-color);
+  display: inline-block;
+  content: '';
+  -webkit-mask: url(/icons/check-ios.svg) no-repeat 50% 50%;
+  mask: url(/icons/check-ios.svg) no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+}
+
+.ios .addNewServer input[type="radio"]::before path {
+  fill: var(--tg-theme-button-color);
+}
+
+.ios .addNewServer input[type=file]::file-selector-button {
+  height: 2rem;
+  margin: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+/* Desktop */
+.tdesktop {
+  font-family: "Open Sans";
+}
+
+.tdesktop .terminalButton svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: 0.2s;
+}
+
+.tdesktop .terminalButton {
+  width: 0;
+  margin: 0 0.3rem;
+  padding: 0;
+}
+
+.tdesktop .inputBg {
+  height: 3rem;
+  border: 1px solid var(--tg-theme-bg-color);
+  border-radius: 10px;
+  border-width: 0 0 1px 0px;
+  overflow: hidden;
+}
+
+.tdesktop .addNewServerForm {
+  width: calc(100% - 3rem)
+}
+
+.tdesktop .addNewServer input:not([type="file"]):not([type="radio"]) {
+  background-color: #0000;
+  border-radius: 0;
+  border-bottom: 1px solid var(--tg-theme-hint-color);
+  height: 2.2rem;
+  padding: 0.2rem 0 0 0;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.tdesktop .addNewServer input:not([type="file"]):not([type="radio"]):focus {
+  border-bottom: 2px solid var(--tg-theme-button-color);
+}
+
+.tdesktop .addNewServer input[type="radio"] {
+  color: var(--tg-theme-hint-color);
+}
+
+.tdesktop .addNewServer input[type="radio"]:checked {
+  color: var(--tg-theme-button-color);
+}
+
+.tdesktop .addNewServer input[type="radio"] {
+  background-color: #0000;
+}
+
+.tdesktop .addNewServer .label {
+  top: 1.3rem;
+  left: 0;
+  font-size: 0.9rem;
+}
+
+.tdesktop .radioItem:hover {
+  cursor: pointer;
+}
+
+.tdesktop .addNewServer input[type=file] {
+  height: 2.2rem;
+}
+
+.tdesktop .addNewServer input[type=file]::file-selector-button {
+  height: 2.2rem;
+  border-radius: 0.5rem;
+}
+
+/* Android */
+.android .terminal {
+  background-color: var(--tg-theme-bg-color);
+}
+
+.android .inputBg {
+  height: 3.5rem;
+}
+
+.android .terminalInput {
+  font-size: 1rem;
+}
+
+.android .terminalButton svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: 0.2s;
+}
+
+.android .terminalButton {
+  width: 0;
+  margin: 0 0.3rem;
+  padding: 0;
+}
+
+.android .addNewServer {
+  background-color: var(--tg-theme-secondary-bg-color);
+}
+
+.android .addNewServerForm {
+  min-width: 100%;
+}
+
+
+.android .addNewServerForm>label {
+  margin: 0 0 -2rem 0;
+  padding: 0 2rem;
+  color: var(--tg-theme-accent-text-color);
+  font-size: 0.8rem;
+  display: block;
+  width: 100%;
+}
+
+.android .addNewServerForm>label:first-child {
+  margin: 0 0 -5rem 0;
+  padding-top: 2rem;
+}
+
+.android .addNewServer input:not([type="file"]):not([type="radio"]) {
+  background-color: #0000;
+  border-radius: 0;
+  border-bottom: 1px solid var(--tg-theme-hint-color);
+  height: 2.2rem;
+  padding-top: 0.2rem;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.android .addNewServer input:not([type="file"]):not([type="radio"]):focus {
+  border-bottom: 2px solid var(--tg-theme-button-color);
+  text-decoration: underline;
+  text-decoration-thickness: 0.5px;
+  text-underline-offset: 2px;
+}
+
+.android .addNewServer .inputField,
+.android .addNewServer .radioField,
+.android .addNewServer .authField {
+  padding: 0.5rem 2rem 1rem;
+  padding-top: 2rem;
+  background-color: var(--tg-theme-section-bg-color);
+}
+
+.android .addNewServer .inputField,
+.android .addNewServer .radioField,
+.android .addNewServer .authField {
+
+  margin-bottom: 2rem;
+}
+
+.android .addNewServer .inputField {
+  padding-top: 2rem;
+  margin-top: 2rem;
+}
+
+.android .addNewServer input {
+  padding-left: 0;
+}
+
+.android .inputItem {
+  height: 2.2rem;
+}
+
+.android .addNewServer .label {
+  top: 1.3rem;
+  left: 0;
+  font-size: 1.1rem;
+}
+
+.android .addNewServer input:focus+.label,
+.android .addNewServer input:not(:placeholder-shown)+.label {
+  top: 1.3rem;
+  opacity: 0;
+}
+
+.android .addNewServer input[type="radio"] {
+  color: var(--tg-theme-hint-color);
+}
+
+.android .addNewServer input[type="radio"]:checked {
+  color: var(--tg-theme-button-color);
+}
+
+.android .addNewServer input[type="radio"] {
+  background-color: #0000;
+}
+
+.android .addNewServer input[type=file]::file-selector-button {
+  height: 2.2rem;
+  border-radius: 0.3rem;
+}
+
+/* macOS */
+.macos .terminalButton {
+  width: 0;
+  height: 0;
+  transition: 0.3s cubic-bezier(.47, 1.64, .41, .8);
+  transform: scale(0.85);
+  padding: 0;
+}
+
+.macos .addNewServerForm>label {
+  color: var(--tg-theme-hint-color)
+}
+
+.macos .addNewServer input:not([type="file"]):not([type="radio"]) {
+  font-size: 1rem;
+  height: 2.2rem
+}
+
+.macos .addNewServer .inputItem {
+  margin: 0.4rem 0;
+}
+
+.macos .inputField,
+.macos .radioField,
+.macos .authField {
+  margin-bottom: 1rem;
+}
+
+.macos .addNewServer .radioItem {
+  padding: 0.5rem 0;
+}
+
+.macos .addNewServer input[type=file]::file-selector-button {
+  height: 2.2rem;
+  padding: 0 1rem;
+}
+
+.macos .settings svg path {
+  opacity: 1;
+}
+
+/* scrollbar */
+
+.historyScroll::-webkit-scrollbar {
+  width: 0.3rem;
+}
+
+.historyScroll::-webkit-scrollbar-track {
+  background: var(--tg-theme-secondary-bg-color);
+}
+
+.historyScroll::-webkit-scrollbar-thumb {
+  background: var(--tg-theme-button-color);
+  border-radius: 0.3rem;
+}
+
+.historyScroll::-webkit-scrollbar-thumb:hover {
+  background: var(--tg-theme-button-color);
+}

@@ -5,10 +5,10 @@ const __dirname = dirname(__filename);
 import path from 'path';
 
 const config = {
-    entry: './script.js',
+    entry: './client/script.js',
     output: {
         filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'client', 'dist'),
     },
     target: 'web',
     module: {
